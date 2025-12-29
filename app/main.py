@@ -1,6 +1,7 @@
 import pygame as pg
 
 from screen import Screen
+from config import logger
 
 
 class Main:
@@ -16,12 +17,13 @@ class Main:
 
 
     def mainloop(self):
+        logger.info("Main(): mainloop()...")
         while True:
-            self.clock.tick(self.FPS)
+            self.clock.tick(self.FPS) 
 
+            self.display.mainloop()   
             self.screen.blit(self.alpha_screen, (0,0))
             
-            self.display.mainloop()     
             pg.display.update()
             self.alpha_screen.fill((0, 0, 0, 0)) # screen cleaning
 
@@ -29,3 +31,4 @@ class Main:
 
 juego = Main()
 juego.mainloop()
+    

@@ -2,6 +2,7 @@ import pygame as pg
 
 from pygame.locals import *
 
+from ai import NeuralNetwork
 from config import *
 from .spritesheet import SpriteSheet
 
@@ -10,25 +11,30 @@ class Birdy(pg.sprite.Sprite, SpriteSheet):
     """
     Tamaño Original: ¿?
     """ 
-    def __init__(self, displayData, tamaño, filename="Birdy1", chroma= VERDE): 
+    def __init__(self, displayData, tamaño, filename, brain=None, chroma=GREEN1): 
+        # AI
+        self.brain = brain if brain else NeuralNetwork()
+        
+        # PyGame
         pg.sprite.Sprite.__init__(self)
         SpriteSheet.__init__(self, displayData, filename, (99*tamaño, 70*tamaño), cantidadSprites=3, chroma= chroma)
 
         self.rect.topleft = (self.screenSize[0] // 3, self.screenSize[1] // 2)
 
-        self.velocidadY = 5
-        self.aceleracionY = 0.55
-        self.velocidadMAX = 20
+        self.speed_y = 5
+        self.max_speed_y = 20
+        self.acc_y = 0.55
 
-    def saltar(self, cantidad: int):    
-        self.velocidadY = cantidad
+        self.hit_items = set() 
+
+    def jump(self, value=10):    
+        self.speed_y = -value
 
     def update(self):
-
         # Aceleración
-        self.velocidadY += self.aceleracionY
-        self.velocidadY = min(self.velocidadY, self.velocidadMAX)
-        self.rect.y += self.velocidadY
+        self.speed_y += self.acc_y
+        self.speed_y = min(self.speed_y, self.max_speed_y)
+        self.rect.y += self.speed_y
                                         
         self.loopSpriteSheet()
 
@@ -37,4 +43,4 @@ class Birdy(pg.sprite.Sprite, SpriteSheet):
             self.rect.y = self.screenSize[1]                
         if self.rect.y > self.screenSize[1]:                  
             self.rect.y = 0 - self.rect.height 
-            self.velocidadY -= 6.8 
+            self.speed_y -= 6.8 

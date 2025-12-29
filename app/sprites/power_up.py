@@ -11,7 +11,7 @@ class PowerUp(pg.sprite.Sprite, SpriteSheet):
     """
     Tamaño Original: ¿?
     """ 
-    def __init__(self, displayData, tamaño, filename= "habilidad", chroma= VERDE):
+    def __init__(self, displayData, tamaño, filename="power_up", chroma=GREEN1):
 
         pg.sprite.Sprite.__init__(self)
         SpriteSheet.__init__(self, displayData=displayData, filename=filename, tamaño= (70*tamaño, 64*tamaño), cantidadSprites= 8, chroma= chroma)

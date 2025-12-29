@@ -1,6 +1,5 @@
 import pygame as pg
-
-from birdy_game import BirdyGame
+from game import BirdyGame
 
 
 class Screen:
@@ -22,7 +21,7 @@ class Screen:
         self.display = init_display
 
         ############################# Instancias #############################
-        self.birdyGame = BirdyGame(screen, alpha_screen, self.FPS, dificultad= 2)
+        self.birdyGame = BirdyGame(screen, alpha_screen, self.FPS, dificulty= 2)
 
         
     def mainloop(self):
@@ -39,17 +38,17 @@ class Screen:
             if self.display == "birdy_main":
 
                 #Evento de tipo Click Izquierdo
-                if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
-                    mouseX, mouseY = pg.mouse.get_pos()
-                    self.birdyGame.jugador.saltar(-10)
+                #if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+                #    mouseX, mouseY = pg.mouse.get_pos()
+                #    self.birdyGame.jugador.jump()
 
                 #Evento tipo PresionarTecla
                 if event.type == pg.KEYDOWN:
-                    if event.key == pg.K_SPACE:
-                        self.birdyGame.jugador.saltar(-10)
+                #    if event.key == pg.K_SPACE:
+                #        self.birdyGame.jugador.jump()
                     if event.key == pg.K_ESCAPE:
                         self.display = "birdy_menu"
-
+                
 # *EVENTO* #######################        BirdySword menuInicial()       ###################################
             elif self.display == "birdy_menu":
                 if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
@@ -66,8 +65,9 @@ class Screen:
 
 # *EVENTO* #######################        BirdySword menuPausa()       ###################################
             elif self.display == "birdy_pause":
-                if event.key == pg.K_ESCAPE:    
-                    self.display = "birdy_main"
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_ESCAPE:    
+                        self.display = "birdy_main"
 
                 if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
                     mouseX, mouseY = pg.mouse.get_pos()
@@ -83,11 +83,14 @@ class Screen:
 
 # *BUCLE* #######################        BirdySword mainloop()        ###################################
         if self.display == "birdy_main":
-            self.birdyGame.mainloop()
+            keys = pg.key.get_pressed()
+            fast_mode = keys[pg.K_TAB]
 
-# *BUCLE* #######################        BirdySword menuInicial()        ###################################
+            self.birdyGame.mainloop(fast_forward=(not fast_mode))
+
+# *BUCLE* #######################        BirdySword menuloop()        ###################################
         if self.display == "birdy_menu":
-            self.birdyGame.menuInicial()
-# *BUCLE* #######################        BirdySword menuPausa()        ###################################
+            self.birdyGame.menuloop()
+# *BUCLE* #######################        BirdySword pauseloop()        ###################################
         if self.display == "birdy_pause":
-            self.birdyGame.menuPausa()
+            self.birdyGame.pauseloop()

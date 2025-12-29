@@ -1,27 +1,50 @@
-NEGRO = (0,0,0)
-BLANCO = (255,255,255)
+# COLORS
+BLACK = (0,0,0)
+WHITE = (255,255,255)
 
-GRIS = (122,122,122)
+RED = (255,0,0)
+GREEN1= (0,255,0)
+GREEN2 = (0,102,0)
+GREEN3 = (0,55,0)
+BLUE = (0,0,255)
 
-ROJO = (255,0,0)
-ROJO1 = (102,0,34)
-ROJO2 = (160,0,0)
+YELLOW = (255,255,0)
 
-VERDE= (0,255,0)
-VERDE1 = (0,160,0)
-VERDE2 = (0,102,0)
-VERDE3 = (0,55,0)
 
-AZUL = (0,0,255)
-AZUL1 = (0,0,160)
+# PATHS
+from pathlib import Path
+from datetime import datetime
 
-AMARILLO = (255,255,0)
-AMARILLO1 = (160,160,0)
-NARANJA = (255,140,0)
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+BASE_DIR = Path(__file__).resolve().parent
 
-azul_t = (0,131,234,50)
-lila_t = (201,131,234,50)
-rojo_t = (255,0,0,20)
-verde_t = (0,255,0,20)
-gris_t = (200,200,200,100)
-trans = (0,0,0,0)
+DATA_DIR = BASE_DIR / "data"
+RUN_DIR = DATA_DIR / timestamp
+
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+RUN_DIR.mkdir(parents=True, exist_ok=True)
+
+
+# LOGGER
+import logging
+
+LOG_FILENAME = "app.log"
+
+# CONFIGURACIÓN DEL LOGGER 
+logger = logging.getLogger("app_logger")  
+logger.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+if logger.hasHandlers():
+    logger.handlers.clear()
+
+# Handler para consola
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(formatter)
+logger.addHandler(console_handler)
+
+# Handler para archivo
+file_handler = logging.FileHandler(RUN_DIR / LOG_FILENAME) 
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)

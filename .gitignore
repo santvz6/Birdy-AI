@@ -1,4 +1,7 @@
 venv
 .venv
 
-**/_pycache__/
+**/__pycache__/
+
+
+app/data/

@@ -1,0 +1,2 @@
+game.py: dict: POS_SIZE: TRAINING_SPEED
+paralelizar cpu, ver si gpu con np
