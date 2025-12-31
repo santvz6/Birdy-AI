@@ -1,0 +1,110 @@
+Como el código antiguo era O(N) (lineal y secuencial), si mides cuánto tarda con 1.000 pájaros, 
+puedes multiplicar ese tiempo por 1.000 para saber cuánto tardaría con 1.000.000.
+
+
+
+OOP - V1
+==============================
+RESULTADOS BENCHMARK (Media de 60 frames)
+Población: 200 pájaros
+Tiempo medio de Frame: 0.010315s
+FPS Teóricos Medios: 96.95
+==============================
+
+
+==============================
+RESULTADOS BENCHMARK (Media de 60 frames)
+Población: 1000 pájaros
+Tiempo medio de Frame: 0.050434s
+FPS Teóricos Medios: 19.83
+==============================
+
+==============================
+RESULTADOS BENCHMARK (Media de 60 frames)
+Población: 10000 pájaros
+Tiempo medio de Frame: 0.455225s
+FPS Teóricos Medios: 2.20
+==============================
+
+
+DOD - V2 - CPU
+==============================
+RESULTADOS BENCHMARK (Media de 60 frames)
+Población: 200 pájaros
+Tiempo medio de Frame: 0.000991s
+FPS Teóricos Medios: 1009.43
+==============================
+
+==============================
+RESULTADOS BENCHMARK (Media de 60 frames)
+Población: 1000 pájaros
+Tiempo medio de Frame: 0.001529s
+FPS Teóricos Medios: 654.07
+==============================
+
+==============================
+RESULTADOS BENCHMARK (Media de 60 frames)
+Población: 10000 pájaros
+Tiempo medio de Frame: 0.006217s
+FPS Teóricos Medios: 160.85
+==============================
+
+==============================
+RESULTADOS BENCHMARK (Media de 60 frames)
+Población: 100000 pájaros
+Tiempo medio de Frame: 0.068330s
+FPS Teóricos Medios: 14.63
+==============================
+
+==============================
+RESULTADOS BENCHMARK (Media de 60 frames)
+Población: 1000000 pájaros
+Tiempo medio de Frame: 0.646153s
+FPS Teóricos Medios: 1.55
+==============================
+
+
+DOD - V2 - GPU
+==============================
+RESULTADOS BENCHMARK (Media de 60 frames)
+Población: 200 pájaros
+Tiempo medio de Frame: 0.003168s
+FPS Teóricos Medios: 315.62
+==============================
+
+==============================
+RESULTADOS BENCHMARK (Media de 60 frames)
+Población: 1000 pájaros
+Tiempo medio de Frame: 0.003166s
+FPS Teóricos Medios: 315.89
+==============================
+
+==============================
+RESULTADOS BENCHMARK (Media de 60 frames)
+Población: 10000 pájaros
+Tiempo medio de Frame: 0.003379s
+FPS Teóricos Medios: 295.91
+==============================
+
+==============================
+RESULTADOS BENCHMARK (Media de 60 frames)
+Población: 100000 pájaros
+Tiempo medio de Frame: 0.006899s
+FPS Teóricos Medios: 144.95
+==============================
+
+==============================
+RESULTADOS BENCHMARK (Media de 60 frames)
+Población: 1000000 pájaros
+Tiempo medio de Frame: 0.036990s
+FPS Teóricos Medios: 27.03
+==============================
+
+==============================
+RESULTADOS BENCHMARK (Media de 60 frames)
+Población: 2000000 pájaros
+Tiempo medio de Frame: 0.078876s
+FPS Teóricos Medios: 12.68
+==============================
+
+30000000: cupy.cuda.memory.OutOfMemoryError: Out of memory allocating 2,160,000,000 bytes (allocated so far: 4,320,000,000 bytes).

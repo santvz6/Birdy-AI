@@ -1,3 +1,5 @@
+# app/sprites/sword.py
+
 import random
 import pygame as pg
 
@@ -6,30 +8,46 @@ from .spritesheet import SpriteSheet
 
  
 class Sword(pg.sprite.Sprite, SpriteSheet):
+    """Represents a sword obstacle with acceleration logic and frame-based animation.
+
+    This class manages a hazardous object that moves from right to left, 
+    increasing its speed over time until it reaches a terminal velocity.
+
+    Attributes:
+        max_speed_x (float): The maximum horizontal speed limit (terminal velocity).
+        speed_x (float): The current horizontal velocity of the sword.
+        acc_x (float): The horizontal acceleration applied per frame.
+        rect (pg.Rect): The collision box and screen position of the sprite.
     """
-    Tamaño Original: 337 x 170 por sprite
-    """ 
-    def __init__(self, displayData, tamaño, filename="swords", chroma=None):
 
+    def __init__(self, display_data:tuple[pg.Surface, pg.Surface, int], scale:float, filename="swords", chroma=None) -> None:
+        """Initializes the Sword instance with random positioning and physics properties.
+
+        Args:
+            display_data (tuple): Contains screen, alpha_screen, and FPS data.
+            scale (float): Scaling factor for the sword's dimensions.
+            filename (str, optional): Name of the image file. Defaults to "swords".
+            chroma (tuple, optional): Color key for transparency. Defaults to None.
+        """
         pg.sprite.Sprite.__init__(self)
-        SpriteSheet.__init__(self, displayData=displayData, filename=filename, tamaño= (337*tamaño, 170*tamaño), cantidadSprites= 5, chroma= chroma) 
+        SpriteSheet.__init__(self, display_data=display_data, filename=filename, size=(337*scale, 170*scale), num_sprites=5, chroma=chroma) 
 
-        self.rect.topleft = (random.randint(int(self.screenSize[0]), int(self.screenSize[0] * 1.5)), 
-                             random.randint(0, int(self.screenSize[1] - self.tamaño[1])))
+        self.rect.topleft = (random.randint(int(self.screen_size[0]), int(self.screen_size[0] * 1.5)), 
+                             random.randint(0, int(self.screen_size[1] - self.size[1])))
 
+        self.max_speed_x = -10
+        self.speed_x = -6
+        self.acc_x = -0.1
+        
 
-        self.velocidadX = -6
-        self.aceleracionX = -0.1
-        self.velocidadMAX = -10
+    def update(self) -> None:
+        """Updates physics calculations and cycles the animation frames.
+        
+        This method applies acceleration to the horizontal speed, ensures it 
+        does not exceed max_speed_x, and updates the sprite's position and visual state.
+        """
+        self.speed_x += self.acc_x
+        self.speed_x = max(self.speed_x, self.max_speed_x)
+        self.rect.x += self.speed_x 
 
-    def update(self):
-
-        self.velocidadX += self.aceleracionX
-        self.velocidadX = max(self.velocidadX, self.velocidadMAX)
-        self.rect.x += self.velocidadX 
-
-        self.loopSpriteSheet()
-
-        if self.rect.x < 0: # Si la espada supera el límite izquierdo se vuelve a generar pero en una altura diferente
-            self.rect.topleft = (random.randint(int(self.screenSize[0]), int(self.screenSize[0] * 1.5)), 
-                                 random.randint(0, int(self.screenSize[1] - self.tamaño[1])))
+        self.animate_sprite_sheet()

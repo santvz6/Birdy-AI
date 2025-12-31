@@ -1,3 +1,5 @@
+# app/screen.py
+
 import pygame as pg
 from game import BirdyGame
 
@@ -21,7 +23,7 @@ class Screen:
         self.display = init_display
 
         ############################# Instancias #############################
-        self.birdyGame = BirdyGame(screen, alpha_screen, self.FPS, dificulty= 2)
+        self.birdyGame = BirdyGame(screen, alpha_screen, self.FPS, difficulty= 2)
 
         
     def mainloop(self):
@@ -54,8 +56,8 @@ class Screen:
                 if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
                     mouseX, mouseY = pg.mouse.get_pos()
 
-                    x1, y1, texto1, tam1 = self.birdyGame.BjugarMenu 
-                    x2, y2, texto2, tam2 = self.birdyGame.BsalirMenu
+                    x1, y1, texto1, tam1 = self.birdyGame.menu_play_button 
+                    x2, y2, texto2, tam2 = self.birdyGame.menu_exit_button
 
                     if x1 < mouseX < x1+tam1 and y1 < mouseY < y1+tam1: # Coordenadas del BOTÓN JUGAR
                         self.display = "birdy_main"
@@ -72,8 +74,8 @@ class Screen:
                 if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
                     mouseX, mouseY = pg.mouse.get_pos()
 
-                    x1, y1, texto1, tam1 = self.birdyGame.BjugarMenu
-                    x2, y2, texto2, tam2 = self.birdyGame.BsalirMenu
+                    x1, y1, texto1, tam1 = self.birdyGame.menu_play_button
+                    x2, y2, texto2, tam2 = self.birdyGame.menu_exit_button
 
                     if x1 < mouseX < x1+tam1 and y1 < mouseY < y1+tam1: # BOTÓN JUGAR
                         self.display = "birdy_main"

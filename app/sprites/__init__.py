@@ -3,6 +3,6 @@ from .coins import Coins
 from .pipe import Pipe
 from .power_up import PowerUp
 from .sword import Sword
+from .spritesheet import SpriteSheet
 
-
-__all__ = ["Birdy", "Coins", "Pipe", "PowerUp", "Sword"]
+__all__ = ["Birdy", "Coins", "Pipe", "PowerUp", "Sword", "SpriteSheet"]

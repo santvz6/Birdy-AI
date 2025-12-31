@@ -1,3 +1,5 @@
+# app/utils.py
+
 import pygame as pg
 import numpy as np
 from config import *
@@ -5,10 +7,90 @@ from config import *
 class Utils:
 
     def __init__(self):
-        pass
+        pg.font.init()
+    
+    ############################### MUSIC ###############################
+    def play_song(self, canciones, current_song):
+        if not pg.mixer.music.get_busy():  
+            current_song += -len(canciones) if current_song >= len(canciones)-1 else 1
+            pg.mixer.music.load(canciones[current_song])
+            pg.mixer.music.play()           
 
-    def draw_network(self, screen, bird, start_x, start_y, inputs):
-        weights = [bird.brain.w1, bird.brain.w2, bird.brain.w3]
+
+    
+    ############################### DRAW ###############################
+    def animate_background(self, screen, screen_x, x, fondo):
+        x_prima = x % fondo.get_rect().width
+        screen.blit(fondo, (x_prima - fondo.get_rect().width, 0))
+        if x_prima < screen_x:
+            screen.blit(fondo, (x_prima, 0))
+        return x - 1
+
+
+    def show_text(self, screen, text, color, x, y, font, font_size):
+        font = pg.font.Font(Path("app/assets/ttf/") / font, font_size) 
+        superficie = font.render(text, True, color) 
+        screen.blit(superficie, (x, y)) 
+
+
+    def draw_bird_vision(self, screen, bird_pos, target_pos:tuple, color=WHITE):
+        """
+        Draws a line representing the leader bird's focus on the nearest object.
+        
+        Args:
+            screen (pg.Surface): Main game surface.
+            bird_pos (tuple): (x, y) coordinates of the leader bird.
+            target_pos (tuple): (x, y) coordinates of the target object center.
+            color (tuple): Color of the line.
+        """
+        if target_pos[0] > screen.get_width(): # Don't draw if target is dummy/offscreen
+            return
+        
+        pg.draw.line(screen, color, bird_pos, target_pos, 2)
+        pg.draw.circle(screen, color, target_pos, 5, 5)
+        
+
+    def draw_debug_hitboxes(self, screen, birds_y, idx_fitness_sort, bird_width, bird_height, 
+                         groups_with_colors, pipe_group, pipe_color, line_width=2):
+        """
+        Draws rectangular hitboxes for birds, items, and pipes.
+        
+        Args:
+            screen (pg.Surface): Main game surface.
+            birds_y (np.ndarray): Array of vertical positions.
+            bird_fitness_sort (np.ndarray): Mask of active birds sorted by fitness.
+            bird_width (int): Width of the bird hitbox.
+            bird_height (int): Height of the bird hitbox.
+            groups_with_colors (list): List of (sprite_group, color_tuple) for items.
+            pipe_group (pg.sprite.Group): Group containing pipe obstacles.
+            pipe_color (tuple): Color for pipe hitboxes.
+            line_width (int): 
+        """
+        try:
+            line_width = int(line_width)
+        except:
+            return
+
+        pos_x = screen.get_width() // 3
+        
+        # Draw Birdy Hitbox
+        for idx in idx_fitness_sort:
+            # Center the rect on the bird's Y coordinate
+            bird_rect = pg.Rect(pos_x, int(birds_y[idx] - bird_height // 2), bird_width, bird_height)
+            pg.draw.rect(screen, (255, 255, 255), bird_rect, line_width)
+
+        # Draw Item Hitboxes (Swords, Coins, Powerups)
+        for group, color in groups_with_colors:
+            for item in group:
+                # We use the item's actual rect
+                pg.draw.rect(screen, color, item.rect, line_width)
+
+        # Draw Pipe Hitboxes
+        for pipe in pipe_group:
+            pg.draw.rect(screen, pipe_color, pipe.rect, line_width)
+
+    def draw_network(self, screen, w1, w2, w3, speed_y, start_x, start_y, inputs):
+        weights = [w1, w2, w3]
         layer_sizes = [w.shape[0] for w in weights] + [weights[-1].shape[1]]
         
         node_radius = 8
@@ -45,36 +127,7 @@ class Utils:
                     val = max(0, min(255, int(abs(inputs[j]) * 255)))
                     node_color = (val, val, 255)
                 elif i == len(nodes) - 1: # Salida
-                    node_color = (255, 255, 0) if bird.speed_y < 0 else (40, 40, 40)
+                    node_color = (255, 255, 0) if speed_y < 0 else (40, 40, 40)
                 
                 pg.draw.circle(screen, node_color, node_pos, node_radius)
                 pg.draw.circle(screen, (200, 200, 200), node_pos, node_radius, 1)
-
-    def draw_debug_line(self, screen_alpha, start_pos, end_pos, dash_length=10, color=WHITE):
-        """Dibuja una línea a trazos desde el pájaro hasta el objetivo con una X final."""
-        x1, y1 = start_pos
-        x2, y2 = end_pos
-        
-        # 1. Calcular la distancia y el ángulo
-        dl = dash_length
-        dx = x2 - x1
-        dy = y2 - y1
-        distance = np.hypot(dx, dy)
-        
-        if distance == 0: return
-
-        # Calcular cuántos trozos caben
-        num_dashes = int(distance / dl)
-        
-        # 2. Dibujar los trazos (usamos un bucle simple)
-        for i in range(0, num_dashes, 2):
-            start = (x1 + (dx * i / num_dashes), y1 + (dy * i / num_dashes))
-            end = (x1 + (dx * (i + 1) / num_dashes), y1 + (dy * (i + 1) / num_dashes))
-            pg.draw.line(screen_alpha, color, start, end, 2)
-
-        # 3. Dibujar la "X" en el destino
-        size = 8
-        # Línea 1 de la X (\)
-        pg.draw.line(screen_alpha, color, (x2 - size, y2 - size), (x2 + size, y2 + size), 2)
-        # Línea 2 de la X (/)
-        pg.draw.line(screen_alpha, color, (x2 - size, y2 + size), (x2 + size, y2 - size), 2)
