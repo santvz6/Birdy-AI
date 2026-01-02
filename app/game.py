@@ -74,15 +74,13 @@ class BirdyGame:
         self.num_powerups = 1
         self.total_items = self.num_swords + self.num_coins + self.num_powerups
          
-       
         self.hitboxes = False
 
         self.enable_fast_mode = True
-        self.training_speed = 5
+        self.training_speed = 2
         
-
-        self.pop_size = 300_000
-        self.num_visual_birds = 1 # min(25 if HAS_GPU else 100, self.pop_size)
+        self.pop_size = 1_000
+        self.num_visual_birds = min(25 if HAS_GPU else 100, self.pop_size)
 
         if self.pop_size <= 10_000:
             import numpy as np

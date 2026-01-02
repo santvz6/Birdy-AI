@@ -1,6 +1,17 @@
 # 🐦 Birdy AI: Evolución del Cerebro Neuroevolutivo
 Este documento detalla la progresión de la arquitectura de la red neuronal aplicada a nuestro proyecto Birdy, un sistema de aprendizaje por refuerzo donde una población de pájaros evoluciona para dominar un entorno dinámico.
 
+---
+
+## 📺 Video: Experimentación y Explicación
+Haz clic en la imagen para ver el proceso completo de entrenamiento y los resultados del experimento:
+
+[![Puse a 400.000 IA a competir y esto es lo que aprendieron](app/assets/gfx/miniatura.png)](https://youtu.be/4sv0wvMiwC0)
+
+> **Resumen del video:** Analizamos cómo 400.000 agentes compitieron, optimizando sus conexiones neuronales para sobrevivir a los obstáculos.
+
+---
+
 ## LOG DE EVOLUCIÓN: BIRDY NEURAL NETWORK
 
 | FASE | ARQUITECTURA | PESOS | DESCRIPCIÓN TÉCNICA |
