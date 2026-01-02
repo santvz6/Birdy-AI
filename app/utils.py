@@ -7,41 +7,69 @@ from config import *
 class Utils:
 
     def __init__(self):
+        """Initializes the Utils instance and the Pygame font module."""
         pg.font.init()
     
     ############################### MUSIC ###############################
-    def play_song(self, canciones, current_song):
+    def play_song(self, songs:list, current_song:int) -> None:
+        """Manages the music playback logic, cycling through a playlist.
+
+        Args:
+            songs (list): List of file paths to audio tracks.
+            current_song (int): The index of the song currently selected.
+        """
         if not pg.mixer.music.get_busy():  
-            current_song += -len(canciones) if current_song >= len(canciones)-1 else 1
-            pg.mixer.music.load(canciones[current_song])
+            current_song += -len(songs) if current_song >= len(songs)-1 else 1
+            pg.mixer.music.load(songs[current_song])
             pg.mixer.music.play()           
 
 
     
     ############################### DRAW ###############################
-    def animate_background(self, screen, screen_x, x, fondo):
-        x_prima = x % fondo.get_rect().width
-        screen.blit(fondo, (x_prima - fondo.get_rect().width, 0))
-        if x_prima < screen_x:
-            screen.blit(fondo, (x_prima, 0))
+    def animate_background(self, screen, screen_x, x, background) -> int:
+        """Creates a seamless scrolling effect for the game background.
+
+        Args:
+            screen (pg.Surface): The main display surface.
+            screen_x (int): The width of the screen.
+            x (int): The current horizontal displacement.
+            background (pg.Surface): The background image surface.
+
+        Returns:
+            int: The updated horizontal position for the next frame.
+        """
+        x_ = x % background.get_rect().width
+        screen.blit(background, (x_ - background.get_rect().width, 0))
+        if x_ < screen_x:
+            screen.blit(background, (x_, 0))
         return x - 1
 
 
-    def show_text(self, screen, text, color, x, y, font, font_size):
-        font = pg.font.Font(Path("app/assets/ttf/") / font, font_size) 
-        superficie = font.render(text, True, color) 
-        screen.blit(superficie, (x, y)) 
+    def show_text(self, screen, text, color, x, y, font, font_size) -> None:
+        """Renders and displays text on the screen using a specific TTF font.
 
-
-    def draw_bird_vision(self, screen, bird_pos, target_pos:tuple, color=WHITE):
+        Args:
+            screen (pg.Surface): The surface to draw the text on.
+            text (str): The string content to be displayed.
+            color (tuple): RGB color of the text.
+            x (int): Horizontal screen coordinate.
+            y (int): Vertical screen coordinate.
+            font (str): Filename of the font in the assets folder.
+            font_size (int): Size of the font to render.
         """
-        Draws a line representing the leader bird's focus on the nearest object.
+        font = pg.font.Font(Path("app/assets/ttf/") / font, font_size) 
+        surface = font.render(text, True, color) 
+        screen.blit(surface, (x, y)) 
+
+
+    def draw_bird_vision(self, screen, bird_pos:tuple, target_pos:tuple, color=WHITE):
+        """Draws a line representing the leader bird's focus on the nearest object.
         
         Args:
             screen (pg.Surface): Main game surface.
             bird_pos (tuple): (x, y) coordinates of the leader bird.
             target_pos (tuple): (x, y) coordinates of the target object center.
-            color (tuple): Color of the line.
+            color (tuple, optional): Color of the line. Defaults to WHITE.
         """
         if target_pos[0] > screen.get_width(): # Don't draw if target is dummy/offscreen
             return
@@ -51,20 +79,19 @@ class Utils:
         
 
     def draw_debug_hitboxes(self, screen, birds_y, idx_fitness_sort, bird_width, bird_height, 
-                         groups_with_colors, pipe_group, pipe_color, line_width=2):
-        """
-        Draws rectangular hitboxes for birds, items, and pipes.
+                         groups_with_colors, pipe_group, pipe_color, line_width=2) -> None:
+        """Draws rectangular hitboxes for birds, items, and pipes for debugging.
         
         Args:
             screen (pg.Surface): Main game surface.
             birds_y (np.ndarray): Array of vertical positions.
-            bird_fitness_sort (np.ndarray): Mask of active birds sorted by fitness.
+            idx_fitness_sort (np.ndarray): Indices of birds sorted by performance.
             bird_width (int): Width of the bird hitbox.
             bird_height (int): Height of the bird hitbox.
             groups_with_colors (list): List of (sprite_group, color_tuple) for items.
             pipe_group (pg.sprite.Group): Group containing pipe obstacles.
             pipe_color (tuple): Color for pipe hitboxes.
-            line_width (int): 
+            line_width (int, optional): Thickness of the rectangle border.
         """
         try:
             line_width = int(line_width)
@@ -89,7 +116,18 @@ class Utils:
         for pipe in pipe_group:
             pg.draw.rect(screen, pipe_color, pipe.rect, line_width)
 
-    def draw_network(self, screen, w1, w2, w3, speed_y, start_x, start_y, inputs):
+
+    def draw_network(self, screen, w1, w2, w3, speed_y, start_x, start_y, inputs) -> None:
+        """Visualizes the neural network structure, weights, and node activations.
+
+        Args:
+            screen (pg.Surface): Main game surface.
+            w1, w2, w3 (np.ndarray): Weight matrices between layers.
+            speed_y (float): Current vertical velocity (used for output node color).
+            start_x (int): Initial horizontal position for the diagram.
+            start_y (int): Initial vertical position for the diagram.
+            inputs (list/np.array): Input values to visualize sensor activation.
+        """
         weights = [w1, w2, w3]
         layer_sizes = [w.shape[0] for w in weights] + [weights[-1].shape[1]]
         

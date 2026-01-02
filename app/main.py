@@ -1,4 +1,4 @@
-# app/main.py
+    # app/main.py
 
 import pygame as pg
 
@@ -28,9 +28,9 @@ class Main:
         self.alpha_screen = pg.Surface((int(1920*0.8), int(1080*0.8)), pg.SRCALPHA,)
         self.clock = pg.time.Clock()
         self.FPS = 60
-
+                                    
         self.display = Screen(self.screen, self.alpha_screen, self.FPS)
-
+                
 
     def mainloop(self):
         """Executes the infinite game loop and manages frame synchronization.

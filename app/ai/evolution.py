@@ -40,34 +40,29 @@ class Evolution:
 
         self.savez_path = RUN_DIR / "weights"
         self.savez_path.mkdir(parents=True, exist_ok=True)
-        self.generation = 1
         self.pop_size = pop_size
 
-        # Cargar o inicializar pesos
-        best_weights = load_best_weights(folder, gen)
-        
+        # Load and Initialize
+        best_weights, self.generation = load_best_weights(folder, gen)
+
         if best_weights:
-            # SINCRONIZACIÓN DE DISPOSITIVO
-            # self.xp.asarray convierte cualquier entrada (numpy o cupy) 
-            # al tipo de self.xp actual de forma segura.
             w1_single = self.xp.asarray(best_weights[0])
             w2_single = self.xp.asarray(best_weights[1])
             w3_single = self.xp.asarray(best_weights[2])
             
-            # Creamos la población mutando el mejor cargado
+            # Reproduction and Mutation
             self.w1 = w1_single + self.xp.random.randn(pop_size, 9, 10) * 0.1
             self.w2 = w2_single + self.xp.random.randn(pop_size, 10, 6) * 0.1
             self.w3 = w3_single + self.xp.random.randn(pop_size, 6, 1) * 0.1
             
-            # Forzamos que el primero sea el mejor exacto (elitismo inicial)
+            # Elitism: The best bird do not change
             self.w1[0], self.w2[0], self.w3[0] = w1_single, w2_single, w3_single
         else:
-            # Inicialización aleatoria masiva
             self.w1 = self.xp.random.randn(pop_size, 9, 10)
             self.w2 = self.xp.random.randn(pop_size, 10, 6)
             self.w3 = self.xp.random.randn(pop_size, 6, 1)
 
-        # La instancia que usaremos para el forward
+        # Collective Brain
         self.brain = NeuralNetwork(self.w1, self.w2, self.w3, device=device)
 
     def restart_generation(self, fitness_array):
@@ -147,7 +142,8 @@ def load_best_weights(folder, gen):
                 else:
                     idx -= 1
     if target:
+        generation = int(re.search(r'\d+', target.name).group())
         data = np.load(target)
         logger.debug(f"Evolution(): loading best_weights... | target: {target}")
-        return data["w1"], data["w2"], data["w3"]
-    return None
+        return (data["w1"], data["w2"], data["w3"]), generation
+    return None, 1

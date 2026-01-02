@@ -61,10 +61,7 @@ class BirdyGame:
         # Attributes
         self.screen_size = self.screen_x, self.screen_y = self.screen.get_size()
         self.utils = Utils()
-        
-        ############################# BENCHMARK PARAMETERS ########################
-        self.frame_times = []
-        self.benchmark_limit = 60
+
 
 
         ############################# GAME PARAMETERS #############################
@@ -77,11 +74,17 @@ class BirdyGame:
         self.num_powerups = 1
         self.total_items = self.num_swords + self.num_coins + self.num_powerups
          
-        self.training_speed = 1
-        self.pop_size = 390_000
-        self.num_visual_birds = 10
+       
+        self.hitboxes = False
 
-        if self.pop_size < 10_000:
+        self.enable_fast_mode = True
+        self.training_speed = 5
+        
+
+        self.pop_size = 300_000
+        self.num_visual_birds = 1 # min(25 if HAS_GPU else 100, self.pop_size)
+
+        if self.pop_size <= 10_000:
             import numpy as np
             self.xp = np
             device = "cpu"
@@ -102,9 +105,9 @@ class BirdyGame:
 
         self.fitness_dict = {
             "alive": 1,
-            "coin": 100,
-            "sword": 250,
-            "powerup": 500,   
+            "coin": 50,
+            "sword": 175,
+            "powerup": 350,   
         }
 
         ############################# INSTANCES AND GROUPS #############################
@@ -186,11 +189,10 @@ class BirdyGame:
         Args:
             fast_forward (bool): If True, runs multiple physics steps per frame and scrolls faster.
         """
-        steps = self.training_speed if (fast_forward) else 1
-        start_time = time.perf_counter()
+        steps = self.training_speed if (fast_forward and self.enable_fast_mode) else 1
         for _ in range(steps):
             self.t_elapsed += 1 / self.FPS 
-            if (fast_forward): self.x -= 1
+            if (fast_forward and self.enable_fast_mode and self.training_speed > 1): self.x -= 1
 
             ################ OPTIMIZATION ################
             mask_alive = self.bird_alive
@@ -229,6 +231,15 @@ class BirdyGame:
                         idx_alive = idx_alive[~dead_mask] # update idx_alive locally
 
 
+            ################ LOW FITNESS ################
+            MIN_FITNESS = -1000 
+            low_fitness = self.fitness_array[idx_alive] < MIN_FITNESS
+
+            if self.xp.any(low_fitness):
+                self.bird_alive[idx_alive[low_fitness]] = False
+                idx_alive = idx_alive[~low_fitness]
+
+
             ############################# mainloop() Grupos #############################
             self.playerG.update() # only does visual and margin updates
             self.swordsG.update()
@@ -242,27 +253,6 @@ class BirdyGame:
                 self.next_generation() 
                 break
             
-        # Medimos el fin de la computación
-        end_time = time.perf_counter()
-        duration = end_time - start_time
-        
-        # Almacenamos el tiempo para el benchmark
-        self.frame_times.append(duration)
-        
-        # Si llegamos al límite de 60 frames, calculamos la media
-        if len(self.frame_times) >= self.benchmark_limit:
-            avg_duration = sum(self.frame_times) / len(self.frame_times)
-            avg_fps = 1 / avg_duration if avg_duration > 0 else 0
-            
-            print("\n" + "="*30)
-            print(f"RESULTADOS BENCHMARK (Media de {self.benchmark_limit} frames)")
-            print(f"Población: {self.pop_size} pájaros")
-            print(f"Tiempo medio de Frame: {avg_duration:.6f}s")
-            print(f"FPS Teóricos Medios: {avg_fps:.2f}")
-            print("="*30 + "\n")
-            
-            # Limpiamos para poder empezar un nuevo benchmark si se desea
-            self.frame_times = []
 
 
         ################ Music ################
@@ -302,10 +292,11 @@ class BirdyGame:
             bird_sprites = self.playerG.sprites()
             for sprite in bird_sprites: sprite.rect.y = -2000 # if they've died
 
+      
             for i, _ in enumerate(bird_y_cpu):
                 if i < len(bird_sprites):
                     bird_sprites[i].rect.centery = int(bird_y_cpu[i])
-                 
+
 
             # IMPORTANT: Use ARRAY data not Birdy data
             leader_fitness = float(self.fitness_array[idx_leader])
@@ -313,14 +304,14 @@ class BirdyGame:
 
             # Data Draw
             info = [
-                f"MODO RAPIDO: {'SI' if fast_forward else 'NO'}",
+                f"MODO RAPIDO: {f'SI x{self.training_speed}' if (fast_forward and self.enable_fast_mode and self.training_speed > 1) else 'NO'}",
                 f"Generacion: {self.evolution_manager.generation}",
                 f"Individuos Vivos: {len(idx_alive)}", # Usar len(indices_vivos)
                 f"Fitness Lider: {leader_fitness:.0f}",
                 f"Velocidad Y: {leader_speed:.2f}"
             ]
             for i, text in enumerate(info):
-                color = YELLOW if "RAPIDO" in text and fast_forward else WHITE
+                color = YELLOW if "RAPIDO" in text and (fast_forward and self.enable_fast_mode and self.training_speed > 1) else WHITE
                 self.utils.show_text(self.screen, text, BLACK, 10, 10 + (i * 20), "m04.ttf", 15)
                 self.utils.show_text(self.screen, text, color, 10, 10 + (i * 20), "m04b.ttf", 15)
 
@@ -329,28 +320,31 @@ class BirdyGame:
             w3_cpu = as_numpy(self.all_w3[idx_leader])
             inputs_cpu = as_numpy(inputs_matrix[0]) # remember its size is (n_alive x 9y)
             
-            # NeuralNetwork Draw
-            net_pos_x = self.screen_x * 0.05
-            net_pos_y = self.screen_y * 0.6
-            self.utils.draw_network(self.screen, w1_cpu, w2_cpu, w3_cpu, leader_speed, net_pos_x, net_pos_y, inputs_cpu)
+
+            if self.hitboxes:
+                # NeuralNetwork Draw
+                net_pos_x = self.screen_x * 0.05
+                net_pos_y = self.screen_y * 0.6
+                self.utils.draw_network(self.screen, w1_cpu, w2_cpu, w3_cpu, leader_speed, net_pos_x, net_pos_y, inputs_cpu)
 
 
             # Hitbox Draw
-            item_debug_list = [
-                (self.swordsG, self.debug_colors["sword"]),
-                (self.coinsG, self.debug_colors["coin"]),
-                (self.powerupG, self.debug_colors["powerup"])
-            ]
-            
-            self.utils.draw_debug_hitboxes(self.screen, bird_y_cpu, np.arange(len(bird_y_cpu)), 
-                                               Birdy.size[0], Birdy.size[1], 
-                                               item_debug_list, self.pipeG, self.debug_colors["pipe"])
+            if self.hitboxes:
+                item_debug_list = [
+                    (self.swordsG, self.debug_colors["sword"]),
+                    (self.coinsG, self.debug_colors["coin"]),
+                    (self.powerupG, self.debug_colors["powerup"])
+                ]
+                
+                self.utils.draw_debug_hitboxes(self.screen, self.bird_y, np.array([idx_leader]), 
+                                                Birdy.size[0], Birdy.size[1], 
+                                                item_debug_list, self.pipeG, self.debug_colors["pipe"])
 
-            # Bird Vision Draw
-            bird_center = (self.screen_x // 3, int(y_leader_cpu))
-            
-            for (pos, color) in nearest_objects:
-                self.utils.draw_bird_vision(self.screen, bird_center, pos, color)
+                # Bird Vision Draw
+                bird_center = (self.screen_x // 3, int(y_leader_cpu))
+                
+                for (pos, color) in nearest_objects:
+                    self.utils.draw_bird_vision(self.screen, bird_center, pos, color)
 
 
         self.utils.show_text(self.screen, str(round(pg.mixer.music.get_volume(),2)),WHITE,self.screen_x*0.95, self.screen_y-80,'Minecraft.ttf',int(self.screen_y*0.02))
