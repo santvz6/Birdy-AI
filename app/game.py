@@ -576,8 +576,6 @@ class BirdyGame:
                     new_obj = sprite_class(display_data=(self.screen, self.screen_alpha, self.FPS), filename=filename, scale=scale)
                     new_obj.item_id = old_id
                     group.add(new_obj)
-                    if (filename == "coins"):
-                        logger.info("GAME.PY")
 
 
     def _detect_item_collisions(self, idx_alive) -> None:
